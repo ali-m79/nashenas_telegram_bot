@@ -3,6 +3,7 @@ from loguru import logger
 
 from src.bot import bot
 from src.constants import keyboards
+from src.filters import IsAdmin
 
 
 class Bot:
@@ -10,6 +11,9 @@ class Bot:
     def __init__(self, telegram_bot):
 
         self.bot = telegram_bot
+
+        # add custom filters
+        self.bot.add_custom_filter(IsAdmin())
 
         # register handlers
         self.handler()
@@ -28,6 +32,10 @@ class Bot:
                 reply_to_message_id=message.message_id,
                 reply_markup=keyboards.main
                 )
+
+        @self.bot.message_handler(is_admin=True)
+        def admin(message):
+            self.send_message(message.chat.id, "you are admin of group")
 
         @self.bot.message_handler(func=lambda msg: "Settings" in msg.text)
         def setting(message):
